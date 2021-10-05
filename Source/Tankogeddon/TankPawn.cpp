@@ -67,6 +67,14 @@ void ATankPawn::Fire()
 	}
 }
 
+void ATankPawn::FireSpecial()
+{
+	if(Cannon)
+	{
+		Cannon->FireSpecial();
+	}
+}
+
 
 void ATankPawn::MoveForward(const float InAxisValue)
 {
@@ -88,14 +96,12 @@ void ATankPawn::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	CurrentMoveForwardAxis = FMath::Lerp(CurrentMoveForwardAxis, TargetMoveForwardAxis, MovementSmoothness);
-	//FMath::FInterpTo(CurrentMoveForwardAxis, TargetMoveForwardAxis, DeltaTime, MovementSmoothness);
+	CurrentMoveForwardAxis = FMath::FInterpTo(CurrentMoveForwardAxis, TargetMoveForwardAxis, DeltaTime, MovementSmoothness);
 	const FVector NewActorLocation = GetActorLocation() +
 		(GetActorForwardVector() * MoveSpeed * CurrentMoveForwardAxis * DeltaTime);
 	SetActorLocation(NewActorLocation, true);
 
-	CurrentRotateRightAxis = FMath::Lerp(CurrentRotateRightAxis, TargetRotateRightAxis, RotationSmoothness);
-	//FMath::FInterpTo(CurrentRotateRightAxis, TargetRotateRightAxis, DeltaTime, RotationSmoothness);
+	CurrentRotateRightAxis = FMath::FInterpTo(CurrentRotateRightAxis, TargetRotateRightAxis, DeltaTime, RotationSmoothness);
 	const float Rotation = GetActorRotation().Yaw + CurrentRotateRightAxis * RotationSpeed * DeltaTime;
 	SetActorRotation(FRotator(0.f, Rotation, 0.f));
 
@@ -103,7 +109,6 @@ void ATankPawn::Tick(const float DeltaTime)
 	FRotator CurrentRotation = TurretMesh->GetComponentRotation();
 	TargetRotation.Roll = CurrentRotation.Roll;
 	TargetRotation.Pitch = CurrentRotation.Pitch;
-	TurretMesh->SetWorldRotation(FMath::Lerp(CurrentRotation, TargetRotation, TurretRotationSmoothness));
-	//FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, TurretRotationSmoothness));
+	TurretMesh->SetWorldRotation(FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, TurretRotationSmoothness));
 }
 
