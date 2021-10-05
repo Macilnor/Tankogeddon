@@ -23,6 +23,14 @@ protected:
 		class UStaticMeshComponent* TurretMesh;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		class UArrowComponent * CannonSetupPoint;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
+		class TSubclassOf<class ACannon> CannonClass;
+	UPROPERTY()
+		class ACannon * Cannon;
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 		class USpringArmComponent* SpringArm;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 		class UCameraComponent* Camera;
@@ -31,21 +39,39 @@ protected:
 		float MoveSpeed = 100.f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 		float RotationSpeed = 100.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+		float MovementSmoothness = 0.5f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+		float RotationSmoothness = 0.5f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
+		float TurretRotationSmoothness = 0.5f;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	void SetupCannon();
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void MoveForward(float InAxisValue);
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void MoveRight(float InAxisValue);
+	void RotateRight(float InAxisValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void SetTurretTargetPosition(const FVector& TargetPosition);
+
+	UFUNCTION()
+	void Fire();
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	float CurrentMoveForwardAxis = 0.f;
 	float TargetMoveForwardAxis = 0.f;
-	float TargetMoveRightAxis = 0.f;
+	float CurrentRotateRightAxis = 0.f;
+	float TargetRotateRightAxis = 0.f;
+
+	FVector TurretTargetPosition;
 };

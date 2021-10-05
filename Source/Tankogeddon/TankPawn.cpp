@@ -2,9 +2,13 @@
 
 
 #include "TankPawn.h"
+
+#include "Cannon.h"
+#include "Camera/CameraComponent.h"
+#include "Components/ArrowComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Camera/CameraComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ATankPawn::ATankPawn()
@@ -17,6 +21,9 @@ ATankPawn::ATankPawn()
 
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank turret"));
 	TurretMesh->SetupAttachment(BodyMesh);
+
+	CannonSetupPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Cannon setup point"));
+	CannonSetupPoint->AttachToComponent(TurretMesh, FAttachmentTransformRules::KeepRelativeTransform);
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring arm"));
 	SpringArm->SetupAttachment(BodyMesh);
@@ -34,26 +41,69 @@ ATankPawn::ATankPawn()
 void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetupCannon();
 }
 
-void ATankPawn::MoveForward(float InAxisValue)
+void ATankPawn::SetupCannon()
+{
+	if(Cannon)
+	{
+		Cannon->Destroy();        
+	}
+
+	FActorSpawnParameters params;
+	params.Instigator = this;
+	params.Owner = this;
+	Cannon = GetWorld()->SpawnActor<ACannon>(CannonClass, params);
+	Cannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+}
+
+void ATankPawn::Fire()
+{
+	if(Cannon)
+	{
+		Cannon->Fire();
+	}
+}
+
+
+void ATankPawn::MoveForward(const float InAxisValue)
 {
 	TargetMoveForwardAxis = InAxisValue;
 }
 
-void ATankPawn::MoveRight(float InAxisValue)
+void ATankPawn::RotateRight(const float InAxisValue)
 {
-	TargetMoveRightAxis = InAxisValue;
+	TargetRotateRightAxis = InAxisValue;
+}
+
+void ATankPawn::SetTurretTargetPosition(const FVector& TargetPosition)
+{
+	TurretTargetPosition = TargetPosition;
 }
 
 // Called every frame
-void ATankPawn::Tick(float DeltaTime)
+void ATankPawn::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FVector NewActorLocation = GetActorLocation() +
-		(GetActorForwardVector() * MoveSpeed * TargetMoveForwardAxis * DeltaTime) +
-		(GetActorRightVector() * MoveSpeed * TargetMoveRightAxis * DeltaTime);
+	CurrentMoveForwardAxis = FMath::Lerp(CurrentMoveForwardAxis, TargetMoveForwardAxis, MovementSmoothness);
+	//FMath::FInterpTo(CurrentMoveForwardAxis, TargetMoveForwardAxis, DeltaTime, MovementSmoothness);
+	const FVector NewActorLocation = GetActorLocation() +
+		(GetActorForwardVector() * MoveSpeed * CurrentMoveForwardAxis * DeltaTime);
 	SetActorLocation(NewActorLocation, true);
+
+	CurrentRotateRightAxis = FMath::Lerp(CurrentRotateRightAxis, TargetRotateRightAxis, RotationSmoothness);
+	//FMath::FInterpTo(CurrentRotateRightAxis, TargetRotateRightAxis, DeltaTime, RotationSmoothness);
+	const float Rotation = GetActorRotation().Yaw + CurrentRotateRightAxis * RotationSpeed * DeltaTime;
+	SetActorRotation(FRotator(0.f, Rotation, 0.f));
+
+	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(TurretMesh->GetComponentLocation(), TurretTargetPosition);
+	FRotator CurrentRotation = TurretMesh->GetComponentRotation();
+	TargetRotation.Roll = CurrentRotation.Roll;
+	TargetRotation.Pitch = CurrentRotation.Pitch;
+	TurretMesh->SetWorldRotation(FMath::Lerp(CurrentRotation, TargetRotation, TurretRotationSmoothness));
+	//FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, TurretRotationSmoothness));
 }
 
