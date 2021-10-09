@@ -19,7 +19,7 @@ class TANKOGEDDON_API ACannon : public AActor
 		class UArrowComponent * ProjectileSpawnPoint;
 
 		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
-		float FireRate = 1;
+		float FireRate = 1.f;
 
 		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
 		uint8 AmmoCapacity = 10;
@@ -31,10 +31,13 @@ class TANKOGEDDON_API ACannon : public AActor
 
 		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
 		ECannonType Type = ECannonType::FireProjectile;
+
+		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (EditCondition = "Type == ECannonType::FireProjectile", EditConditionHides), Category = "Fire params")
+		TSubclassOf<class AProjectile> ProjectileClass;
     
 		FTimerHandle ReloadTimerHandle;
 
-		uint8 Ammo = AmmoCapacity; 
+		uint8 Ammo = 0; 
 		bool ReadyToFire = false;
 	public:    
 		ACannon();
@@ -45,6 +48,7 @@ class TANKOGEDDON_API ACannon : public AActor
 		bool IsReadyToFire() const;
 	protected:
 		virtual void BeginPlay() override;
+		virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 
 		void Reload();
 		void Restock(); 

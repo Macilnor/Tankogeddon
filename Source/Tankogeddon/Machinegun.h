@@ -28,6 +28,8 @@ class TANKOGEDDON_API AMachinegun : public ACannon
 	virtual void Fire() override;
 	virtual void FireSpecial() override;
 
+	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
+
 	void TriggerFire();
 	void TriggerFireSpecial();
 };

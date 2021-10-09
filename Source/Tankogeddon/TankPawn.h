@@ -27,8 +27,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
 		class TSubclassOf<class ACannon> CannonClass;
-	UPROPERTY()
-		class ACannon * Cannon;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 		class USpringArmComponent* SpringArm;
@@ -48,8 +46,7 @@ protected:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
-	void SetupCannon();
+
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
@@ -61,6 +58,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void SetTurretTargetPosition(const FVector& TargetPosition);
 
+	UFUNCTION(BlueprintCallable, Category = "Turret")	
+	void SetupCannon(TSubclassOf<class ACannon> InCannonClass);
+
 	UFUNCTION()
 	void Fire();
 
@@ -71,6 +71,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	UPROPERTY()
+	class ACannon* Cannon = nullptr;
+	
 	float CurrentMoveForwardAxis = 0.f;
 	float TargetMoveForwardAxis = 0.f;
 	float CurrentRotateRightAxis = 0.f;
