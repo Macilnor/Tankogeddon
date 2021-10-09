@@ -64,6 +64,9 @@ public:
 	UFUNCTION()
 	void Fire();
 
+	UFUNCTION()
+	void FireSpecial();
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
