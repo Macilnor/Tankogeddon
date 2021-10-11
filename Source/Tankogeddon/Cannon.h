@@ -45,12 +45,13 @@ class TANKOGEDDON_API ACannon : public AActor
 		virtual void Fire();
 		virtual void FireSpecial();
 
+		void Restock(uint8 InAmmo);
+	
 		bool IsReadyToFire() const;
 	protected:
 		virtual void BeginPlay() override;
 		virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 	
 		void Reload();
-		void Restock();
 	
 };
