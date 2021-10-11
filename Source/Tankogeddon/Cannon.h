@@ -24,9 +24,9 @@ class TANKOGEDDON_API ACannon : public AActor
 		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
 		uint8 AmmoCapacity = 10;
 	
-		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
+		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (EditCondition = "Type == ECannonType::FireTrace", EditConditionHides), Category = "Fire params")
 		float FireRange = 1000;
-		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
+		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (EditCondition = "Type == ECannonType::FireTrace", EditConditionHides), Category = "Fire params")
 		float FireDamage = 1;
 
 		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
@@ -49,8 +49,8 @@ class TANKOGEDDON_API ACannon : public AActor
 	protected:
 		virtual void BeginPlay() override;
 		virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
-
+	
 		void Reload();
-		void Restock(); 
-
+		void Restock();
+	
 };

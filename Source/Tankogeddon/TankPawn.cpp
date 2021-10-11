@@ -78,6 +78,13 @@ void ATankPawn::FireSpecial()
 	}
 }
 
+void ATankPawn::SwapCannons()
+{
+	ACannon* TempCannon = SecondaryCannon;
+	SecondaryCannon = Cannon;
+	Cannon = TempCannon;	
+}
+
 
 void ATankPawn::MoveForward(const float InAxisValue)
 {
