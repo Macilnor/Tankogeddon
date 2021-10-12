@@ -59,20 +59,26 @@ public:
 	void SetTurretTargetPosition(const FVector& TargetPosition);
 
 	UFUNCTION(BlueprintCallable, Category = "Turret")	
-	void SetupCannon(TSubclassOf<class ACannon> InCannonClass);
-
+	void SetupCannon(TSubclassOf<class ACannon> InCannonClass, uint8 InAmmo);
+	
 	UFUNCTION()
 	void Fire();
 
 	UFUNCTION()
 	void FireSpecial();
 
+	UFUNCTION()
+	void SwapCannons();
+	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 private:
 	UPROPERTY()
 	class ACannon* Cannon = nullptr;
+
+	UPROPERTY()
+	class ACannon* SecondaryCannon = nullptr;
 	
 	float CurrentMoveForwardAxis = 0.f;
 	float TargetMoveForwardAxis = 0.f;

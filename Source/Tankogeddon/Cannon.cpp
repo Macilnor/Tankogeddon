@@ -121,16 +121,20 @@ void ACannon::Reload()
 	ReadyToFire = true;
 }
 
-void ACannon::Restock()
+void ACannon::Restock(uint8 InAmmo)
 {
-	Ammo = AmmoCapacity;
+	Ammo += InAmmo;
+	if (Ammo > AmmoCapacity)
+	{
+		Ammo = AmmoCapacity;
+	}
 }
 
 void ACannon::BeginPlay()
 {
 	Super::BeginPlay();
 	Reload();
-	Restock();
+	Restock(AmmoCapacity);
 }
 
 void ACannon::EndPlay(EEndPlayReason::Type EndPlayReason)
