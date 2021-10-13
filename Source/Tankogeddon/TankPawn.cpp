@@ -4,11 +4,15 @@
 #include "TankPawn.h"
 
 #include "Cannon.h"
+#include "HealthComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Tankogeddon.h"
+#include "Chaos/ChaosPerfTest.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 ATankPawn::ATankPawn()
@@ -35,6 +39,12 @@ ATankPawn::ATankPawn()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ATankPawn::OnHealthChanged);
+	HealthComponent->OnDie.AddDynamic(this, &ATankPawn::OnDie);
+
+	HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
+	HitCollider->SetupAttachment(BodyMesh);
 }
 
 // Called when the game starts or when spawned
@@ -43,6 +53,21 @@ void ATankPawn::BeginPlay()
 	Super::BeginPlay();
 
 	SetupCannon(CannonClass);
+}
+
+void ATankPawn::Destroyed()
+{
+	Super::Destroyed();
+
+	if (Cannon)
+	{
+		Cannon->Destroy();
+	}
+
+	if (SecondaryCannon)
+	{
+		SecondaryCannon->Destroy();
+	}
 }
 
 void ATankPawn::SetupCannon(TSubclassOf<class ACannon> InCannonClass)
@@ -96,6 +121,12 @@ ACannon* ATankPawn::GetCannon() const
 	return Cannon;
 }
 
+void ATankPawn::OnHealthChanged_Implementation(float Damage)
+{
+	UE_LOG(LogTankogeddon, Log, TEXT("Turret %s taked damage:%f "), *GetName(), Damage);
+
+}
+
 void ATankPawn::MoveForward(const float InAxisValue)
 {
 	TargetMoveForwardAxis = InAxisValue;
@@ -109,6 +140,11 @@ void ATankPawn::RotateRight(const float InAxisValue)
 void ATankPawn::SetTurretTargetPosition(const FVector& TargetPosition)
 {
 	TurretTargetPosition = TargetPosition;
+}
+
+void ATankPawn::OnDie_Implementation()
+{
+	Destroy();
 }
 
 // Called every frame
@@ -130,5 +166,10 @@ void ATankPawn::Tick(const float DeltaTime)
 	TargetRotation.Roll = CurrentRotation.Roll;
 	TargetRotation.Pitch = CurrentRotation.Pitch;
 	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(CurrentRotation, TargetRotation, DeltaTime, TurretRotationSmoothness));
+}
+
+void ATankPawn::TakeDamage(const FDamageData& DamageData)
+{
+	HealthComponent->TakeDamage(DamageData);
 }
 

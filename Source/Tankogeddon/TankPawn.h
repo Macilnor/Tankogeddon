@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Damageable.h"
 #include "GameFramework/Pawn.h"
 #include "TankPawn.generated.h"
 
 UCLASS()
-class TANKOGEDDON_API ATankPawn : public APawn
+class TANKOGEDDON_API ATankPawn : public APawn, public IDamageable
 {
 	GENERATED_BODY()
 
@@ -32,6 +33,12 @@ protected:
 		class USpringArmComponent* SpringArm;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 		class UCameraComponent* Camera;
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		class UHealthComponent* HealthComponent;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		class UBoxComponent* HitCollider;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 		float MoveSpeed = 100.f;
@@ -46,6 +53,7 @@ protected:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void Destroyed() override;
 
 
 public:
@@ -72,11 +80,19 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Turret")
 	class ACannon* GetCannon() const;
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Health")
+	void OnHealthChanged(float Damage);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Health")
+	void OnDie();
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	virtual void TakeDamage(const FDamageData& DamageData) override;
+	
 	UPROPERTY()
 	class ACannon* Cannon = nullptr;
 
