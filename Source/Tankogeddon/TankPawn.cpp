@@ -42,22 +42,14 @@ void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetupCannon(CannonClass, 0);
+	SetupCannon(CannonClass);
 }
 
-void ATankPawn::SetupCannon(TSubclassOf<class ACannon> InCannonClass, uint8 InAmmo)
+void ATankPawn::SetupCannon(TSubclassOf<class ACannon> InCannonClass)
 {
 	if (Cannon)
 	{
-		if (Cannon->GetClass() == InCannonClass)
-		{
-			Cannon->Restock(InAmmo);
-			return;
-		}
-		else
-		{
-			Cannon->Destroy();
-		}
+		Cannon->Destroy();
 	}
 
 	if (InCannonClass)
@@ -88,11 +80,21 @@ void ATankPawn::FireSpecial()
 
 void ATankPawn::SwapCannons()
 {
-	ACannon* TempCannon = SecondaryCannon;
-	SecondaryCannon = Cannon;
-	Cannon = TempCannon;	
+	Swap(Cannon, SecondaryCannon);
+	if (Cannon)
+	{
+		Cannon->SetVisibility(true);
+	}
+	if (SecondaryCannon)
+	{
+		SecondaryCannon->SetVisibility(false);
+	}
 }
 
+ACannon* ATankPawn::GetCannon() const
+{
+	return Cannon;
+}
 
 void ATankPawn::MoveForward(const float InAxisValue)
 {

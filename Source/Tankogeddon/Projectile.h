@@ -29,6 +29,7 @@ class TANKOGEDDON_API AProjectile : public AActor
 	AProjectile();
 
 	void Start();
+	void Stop();
 	virtual void Tick(float DeltaSeconds) override;
 
 	protected:

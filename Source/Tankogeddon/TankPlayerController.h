@@ -27,6 +27,9 @@ private:
 	void FireSpecial();
 	void SwapCannons();
 
+	UFUNCTION(exec)
+	void DumpActorPoolSubsystemStats();
+
 	UPROPERTY()
 	class ATankPawn* TankPawn;
 	

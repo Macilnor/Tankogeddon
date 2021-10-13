@@ -2,7 +2,9 @@
 
 
 #include "TankPlayerController.h"
-#include "DrawDebugHelpers.h"
+
+#include "ActorPoolSubsystem.h"
+//#include "DrawDebugHelpers.h"
 #include "TankPawn.h"
 
 void ATankPlayerController::BeginPlay()
@@ -78,4 +80,9 @@ void ATankPlayerController::RotateRight(const float InAxisValue)
     {
         TankPawn->RotateRight(InAxisValue);
     }
+}
+
+void ATankPlayerController::DumpActorPoolSubsystemStats()
+{
+    GetWorld()->GetSubsystem<UActorPoolSubsystem>()->DumpPoolStats();
 }

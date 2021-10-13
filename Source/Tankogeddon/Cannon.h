@@ -22,7 +22,7 @@ class TANKOGEDDON_API ACannon : public AActor
 		float FireRate = 1.f;
 
 		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
-		uint8 AmmoCapacity = 10;
+		int32 AmmoCapacity = 10;
 	
 		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (EditCondition = "Type == ECannonType::FireTrace", EditConditionHides), Category = "Fire params")
 		float FireRange = 1000;
@@ -37,7 +37,7 @@ class TANKOGEDDON_API ACannon : public AActor
     
 		FTimerHandle ReloadTimerHandle;
 
-		uint8 Ammo = 0; 
+		int32 Ammo = 0; 
 		bool ReadyToFire = false;
 	public:    
 		ACannon();
@@ -45,7 +45,9 @@ class TANKOGEDDON_API ACannon : public AActor
 		virtual void Fire();
 		virtual void FireSpecial();
 
-		void Restock(uint8 InAmmo);
+		void SetVisibility(bool bIsVisible);
+
+		void Restock(int32 InAmmo);
 	
 		bool IsReadyToFire() const;
 	protected:

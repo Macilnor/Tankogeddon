@@ -2,10 +2,11 @@
 
 
 #include "Cannon.h"
-
+#include "ActorPoolSubsystem.h"
 #include "DrawDebugHelpers.h"
 #include "Projectile.h"
 #include "Components/ArrowComponent.h"
+#include "Tankogeddon.h"
 
 
 ACannon::ACannon()
@@ -35,7 +36,9 @@ void ACannon::Fire()
 	{
 		GEngine->AddOnScreenDebugMessage(10, 1,FColor::Green, "Fire - projectile");
 		
-		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation());
+		UActorPoolSubsystem* Pool = GetWorld()->GetSubsystem<UActorPoolSubsystem>();
+		FTransform SpawnTransform(ProjectileSpawnPoint->GetComponentRotation(), ProjectileSpawnPoint->GetComponentLocation(), FVector::OneVector);
+		AProjectile* Projectile = Cast<AProjectile>(Pool->RetrieveActor(ProjectileClass, SpawnTransform));
 		if (Projectile)
 		{
 			Projectile->Start();
@@ -121,13 +124,15 @@ void ACannon::Reload()
 	ReadyToFire = true;
 }
 
-void ACannon::Restock(uint8 InAmmo)
+void ACannon::Restock(int32 InAmmo)
 {
-	Ammo += InAmmo;
-	if (Ammo > AmmoCapacity)
-	{
-		Ammo = AmmoCapacity;
-	}
+	Ammo = FMath::Clamp(Ammo + InAmmo, 0, AmmoCapacity);
+	UE_LOG(LogTankogeddon, Log, TEXT("AddAmmo(%d)! NumAmmo: %d"), InAmmo, Ammo);
+}
+
+void ACannon::SetVisibility(bool bIsVisible)
+{
+	Mesh->SetHiddenInGame(!bIsVisible);
 }
 
 void ACannon::BeginPlay()
