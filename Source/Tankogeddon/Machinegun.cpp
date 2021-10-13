@@ -39,9 +39,9 @@ void AMachinegun::FireSpecial()
 	ReadyToFire = false;
 	bIsFiring = true;
 	
-	GetWorld()->GetTimerManager().SetTimer(AutomaticFireTimerHandle, this, &AMachinegun::TriggerFireSpecial, ShotsInterval * 2, true);
+	GetWorld()->GetTimerManager().SetTimer(AutomaticFireTimerHandle, this, &AMachinegun::TriggerFireSpecial, ShotsInterval, true);
 	
-	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AMachinegun::Reload, (1 / FireRate) * 2, false);
+	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AMachinegun::Reload, 1 / FireRate, false);
 }
 
 void AMachinegun::EndPlay(EEndPlayReason::Type EndPlayReason)
