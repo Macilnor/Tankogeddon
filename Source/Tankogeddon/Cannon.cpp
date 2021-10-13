@@ -41,6 +41,7 @@ void ACannon::Fire()
 		AProjectile* Projectile = Cast<AProjectile>(Pool->RetrieveActor(ProjectileClass, SpawnTransform));
 		if (Projectile)
 		{
+			Projectile->SetInstigator(GetInstigator());
 			Projectile->Start();
 		}
 	}
@@ -83,9 +84,12 @@ void ACannon::FireSpecial()
 	{
 		GEngine->AddOnScreenDebugMessage(10, 1,FColor::Green, "Fire special - projectile");
 
-		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation());
+		UActorPoolSubsystem* Pool = GetWorld()->GetSubsystem<UActorPoolSubsystem>();
+		FTransform SpawnTransform(ProjectileSpawnPoint->GetComponentRotation(), ProjectileSpawnPoint->GetComponentLocation(), FVector::OneVector);
+		AProjectile* Projectile = Cast<AProjectile>(Pool->RetrieveActor(ProjectileClass, SpawnTransform));
 		if (Projectile)
 		{
+			Projectile->SetInstigator(GetInstigator());
 			Projectile->Start();
 		}
 	}

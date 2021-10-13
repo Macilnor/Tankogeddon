@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Tankogeddon.h"
 #include "ActorPoolSubsystem.h"
+#include "Damageable.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -66,10 +67,25 @@ void AProjectile::OnMeshHit(class UPrimitiveComponent* OverlappedComp, class AAc
 {
 	UE_LOG(LogTankogeddon, Warning, TEXT("Projectile %s collided with %s. "), *GetName(), *OtherActor->GetName());
 
+	if (OtherActor == GetInstigator())
+	{
+		Stop();
+		return;
+	}
+	
 	if (OtherActor && OtherComp && OtherComp->GetCollisionObjectType() == ECC_Destructible)
 	{
 		OtherActor->Destroy();
 	}
+	else if (IDamageable* Damageable = Cast<IDamageable>(OtherActor))
+	{
+		FDamageData DamageData;
+		DamageData.DamageValue = Damage;
+		DamageData.Instigator = GetInstigator();
+		DamageData.DamageMaker = this;
+		Damageable->TakeDamage(DamageData);
+	}
+	
 	Stop();
 }
 
