@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "Damageable.h"
 #include "GameFramework/Pawn.h"
+#include "Scorable.h"
 #include "TankPawn.generated.h"
 
 UCLASS()
-class TANKOGEDDON_API ATankPawn : public APawn, public IDamageable
+class TANKOGEDDON_API ATankPawn : public APawn, public IDamageable, public IScorable
 {
 	GENERATED_BODY()
 
@@ -28,6 +29,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
 		class TSubclassOf<class ACannon> CannonClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Scores")
+	int32 DestructionScores = 10;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 		class USpringArmComponent* SpringArm;
@@ -89,6 +93,7 @@ public:
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	int32 GetScores() const override;
 
 private:
 	virtual void TakeDamage(const FDamageData& DamageData) override;

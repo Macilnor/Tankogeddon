@@ -47,6 +47,13 @@ ATankPawn::ATankPawn()
 	HitCollider->SetupAttachment(BodyMesh);
 }
 
+int32 ATankPawn::GetScores() const
+{
+	return DestructionScores;
+}
+
+
+
 // Called when the game starts or when spawned
 void ATankPawn::BeginPlay()
 {
