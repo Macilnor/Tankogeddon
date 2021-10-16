@@ -20,6 +20,9 @@ public:
 	virtual void SetupInputComponent() override;
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY()
+	int32 Scores;
+
 private:
 	void MoveForward(float InAxisValue);
 	void RotateRight(float InAxisValue);

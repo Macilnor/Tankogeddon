@@ -142,3 +142,8 @@ void ATurret::TakeDamage(const FDamageData& DamageData)
     HealthComponent->TakeDamage(DamageData);
 
 }
+
+int32 ATurret::GetScores() const
+{
+    return DestructionScores;
+}

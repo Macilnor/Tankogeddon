@@ -4,6 +4,7 @@
 #include "Machinegun.h"
 
 #include "ActorPoolSubsystem.h"
+#include "Damageable.h"
 #include "DrawDebugHelpers.h"
 #include "Projectile.h"
 #include "Components/ArrowComponent.h"
@@ -80,10 +81,22 @@ void AMachinegun::TriggerFire()
 		TraceParams.bReturnPhysicalMaterial = false;
 		if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams))
 		{
+			if (HitResult.Actor == GetInstigator())
+			{
+				return;
+			}
 			DrawDebugLine(GetWorld(), TraceStart, HitResult.Location, FColor::Red, false, 0.5f, 0, 5.f);
 			if (HitResult.Actor.IsValid() && HitResult.Component.IsValid() && HitResult.Component->GetCollisionObjectType() == ECC_Destructible)
 			{
 				HitResult.Actor->Destroy();
+			}
+			else if (IDamageable* Damageable = Cast<IDamageable>(HitResult.Actor))
+			{
+				FDamageData DamageData;
+				DamageData.DamageValue = FireDamage;
+				DamageData.Instigator = GetInstigator();
+				DamageData.DamageMaker = this;
+				Damageable->TakeDamage(DamageData);
 			}
 		}
 		else
@@ -125,10 +138,22 @@ void AMachinegun::TriggerFireSpecial()
 		TraceParams.bReturnPhysicalMaterial = false;
 		if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams))
 		{
+			if (HitResult.Actor == GetInstigator())
+			{
+				return;
+			}
 			DrawDebugLine(GetWorld(), TraceStart, HitResult.Location, FColor::Red, false, 0.5f, 0, 5.f);
 			if (HitResult.Actor.IsValid() && HitResult.Component.IsValid() && HitResult.Component->GetCollisionObjectType() == ECC_Destructible)
 			{
 				HitResult.Actor->Destroy();
+			}
+			else if (IDamageable* Damageable = Cast<IDamageable>(HitResult.Actor))
+			{
+				FDamageData DamageData;
+				DamageData.DamageValue = FireDamage * 0.75f;
+				DamageData.Instigator = GetInstigator();
+				DamageData.DamageMaker = this;
+				Damageable->TakeDamage(DamageData);
 			}
 		}
 		else
