@@ -12,7 +12,10 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Tankogeddon.h"
 #include "Chaos/ChaosPerfTest.h"
+#include "Components/AudioComponent.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ATankPawn::ATankPawn()
@@ -45,6 +48,13 @@ ATankPawn::ATankPawn()
 
 	HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
 	HitCollider->SetupAttachment(BodyMesh);
+
+	HitEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Hit Effect"));
+	HitEffect->SetupAttachment(BodyMesh);
+
+	HitAudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("Hit Audio Effect"));
+	HitAudioEffect->SetupAttachment(BodyMesh);
+	
 }
 
 int32 ATankPawn::GetScores() const
@@ -131,7 +141,8 @@ ACannon* ATankPawn::GetCannon() const
 void ATankPawn::OnHealthChanged_Implementation(float Damage)
 {
 	UE_LOG(LogTankogeddon, Log, TEXT("Turret %s taked damage:%f "), *GetName(), Damage);
-
+	HitEffect->ActivateSystem();
+	HitAudioEffect->Play();
 }
 
 void ATankPawn::MoveForward(const float InAxisValue)
@@ -151,6 +162,8 @@ void ATankPawn::SetTurretTargetPosition(const FVector& TargetPosition)
 
 void ATankPawn::OnDie_Implementation()
 {
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeathEffect, GetActorTransform());
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathAudioEffect, GetActorLocation());
 	Destroy();
 }
 

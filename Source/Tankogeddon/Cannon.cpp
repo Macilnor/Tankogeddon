@@ -57,7 +57,7 @@ void ACannon::Fire()
 
 		if (ShootShake)
 		{
-			GetWorld()->GetFirstPlayerController()->ClientPlayCameraShake(ShootShake);
+			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(ShootShake);
 		}
 	}
     
