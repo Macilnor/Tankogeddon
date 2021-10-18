@@ -31,7 +31,7 @@ protected:
 		class TSubclassOf<class ACannon> CannonClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Scores")
-	int32 DestructionScores = 10;
+		int32 DestructionScores = 10;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 		class USpringArmComponent* SpringArm;
@@ -55,6 +55,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
 		float TurretRotationSmoothness = 0.5f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params", Meta = (MakeEditWidget = true))
+	TArray<FVector> PatrollingPoints;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params")
+	float MovementAccuracy = 50.f;
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Health")
+	void OnHealthChanged(float Damage);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Health")
+	void OnDie();
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
@@ -85,18 +97,27 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Turret")
 	class ACannon* GetCannon() const;
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Health")
-	void OnHealthChanged(float Damage);
-
-	UFUNCTION(BlueprintNativeEvent, Category = "Health")
-	void OnDie();
+	UFUNCTION(BlueprintPure, Category = "Turret")
+	FVector GetTurretForwardVector();
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void TakeDamage(const FDamageData& DamageData) override;
 	int32 GetScores() const override;
 
+	UFUNCTION(BlueprintPure, Category = "AI|Move params")
+	const TArray<FVector>& GetPatrollingPoints() 
+	{ 
+		return PatrollingPoints;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "AI|Move params")
+	float GetMovementAccuracy() 
+	{ 
+		return MovementAccuracy; 
+	}
+	
 private:
-	virtual void TakeDamage(const FDamageData& DamageData) override;
 	
 	UPROPERTY()
 	class ACannon* Cannon = nullptr;
