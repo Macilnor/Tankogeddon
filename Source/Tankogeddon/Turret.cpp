@@ -7,6 +7,7 @@
 #include "Engine/StaticMesh.h"
 #include "Components/ArrowComponent.h"
 #include "Cannon.h"
+#include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "UObject/NoExportTypes.h"
 #include "Tankogeddon.h"
@@ -77,12 +78,32 @@ void ATurret::Targeting()
     if (IsPlayerInRange())
     {
         RotateToPlayer();
-    }
 
-    if (CanFire() && Cannon && Cannon->IsReadyToFire())
-    {
-        Fire();
+        FHitResult HitResult;
+        FVector TraceStart = this->GetActorLocation();
+        FVector TraceEnd = PlayerPawn->GetActorLocation();
+        FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("AI Vission Trace")), true, this);
+        TraceParams.bReturnPhysicalMaterial = false;
+
+        if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams))
+        {
+            DrawDebugLine(GetWorld(), TraceStart, HitResult.Location, FColor::Red, false, 0.1f, 0, 5);
+            if (HitResult.Actor != PlayerPawn)
+            {
+                return;
+            }
+        }
+        else
+        {
+            DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 0.1f, 0, 5);
+        }
+
+        if (CanFire() && Cannon && Cannon->IsReadyToFire())
+        {
+            Fire();
+        }
     }
+    
 }
 
 void ATurret::RotateToPlayer()
