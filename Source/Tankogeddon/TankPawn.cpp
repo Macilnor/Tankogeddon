@@ -12,7 +12,10 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Tankogeddon.h"
 #include "Chaos/ChaosPerfTest.h"
+#include "Components/AudioComponent.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ATankPawn::ATankPawn()
@@ -45,6 +48,13 @@ ATankPawn::ATankPawn()
 
 	HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
 	HitCollider->SetupAttachment(BodyMesh);
+
+	HitEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Hit Effect"));
+	HitEffect->SetupAttachment(BodyMesh);
+
+	HitAudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("Hit Audio Effect"));
+	HitAudioEffect->SetupAttachment(BodyMesh);
+	
 }
 
 int32 ATankPawn::GetScores() const
@@ -131,7 +141,8 @@ ACannon* ATankPawn::GetCannon() const
 void ATankPawn::OnHealthChanged_Implementation(float Damage)
 {
 	UE_LOG(LogTankogeddon, Log, TEXT("Turret %s taked damage:%f "), *GetName(), Damage);
-
+	HitEffect->ActivateSystem();
+	HitAudioEffect->Play();
 }
 
 void ATankPawn::MoveForward(const float InAxisValue)
@@ -147,10 +158,19 @@ void ATankPawn::RotateRight(const float InAxisValue)
 void ATankPawn::SetTurretTargetPosition(const FVector& TargetPosition)
 {
 	TurretTargetPosition = TargetPosition;
+	bIsTurretTargetSet = true;
+}
+
+void ATankPawn::SetTurretRotationAxis(float AxisValue)
+{
+	TurretRotationAxis = AxisValue;
+	TurretTargetDirection = TurretTargetPosition - GetActorLocation();
 }
 
 void ATankPawn::OnDie_Implementation()
 {
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeathEffect, GetActorTransform());
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathAudioEffect, GetActorLocation());
 	Destroy();
 }
 
@@ -168,6 +188,13 @@ void ATankPawn::Tick(const float DeltaTime)
 	const float Rotation = GetActorRotation().Yaw + CurrentRotateRightAxis * RotationSpeed * DeltaTime;
 	SetActorRotation(FRotator(0.f, Rotation, 0.f));
 
+
+	if (!bIsTurretTargetSet)
+	{
+		TurretTargetDirection = TurretTargetDirection.RotateAngleAxis(TurretRotationSmoothness * DeltaTime * TurretRotationAxis, FVector::UpVector);
+		TurretTargetPosition = GetActorLocation() + TurretTargetDirection;
+	}
+	
 	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(TurretMesh->GetComponentLocation(), TurretTargetPosition);
 	FRotator CurrentRotation = TurretMesh->GetComponentRotation();
 	TargetRotation.Roll = CurrentRotation.Roll;

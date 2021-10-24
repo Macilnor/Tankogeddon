@@ -44,6 +44,20 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 		class UBoxComponent* HitCollider;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		class UParticleSystemComponent* HitEffect;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		class UAudioComponent* HitAudioEffect;
+
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Death")
+	class UParticleSystem* DeathEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Death")
+	class USoundBase* DeathAudioEffect;
+
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 		float MoveSpeed = 100.f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
@@ -81,6 +95,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void SetTurretTargetPosition(const FVector& TargetPosition);
+
+	UFUNCTION(BlueprintCallable, Category = "Turret")
+	void SetTurretRotationAxis(float AxisValue);
 
 	UFUNCTION(BlueprintCallable, Category = "Turret")	
 	void SetupCannon(TSubclassOf<class ACannon> InCannonClass);
@@ -131,4 +148,8 @@ private:
 	float TargetRotateRightAxis = 0.f;
 
 	FVector TurretTargetPosition;
+	FVector TurretTargetDirection;
+	bool bIsTurretTargetSet = false;
+	float TurretRotationAxis = 0.f;
+
 };
