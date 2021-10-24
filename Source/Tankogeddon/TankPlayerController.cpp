@@ -5,6 +5,7 @@
 
 #include "ActorPoolSubsystem.h"
 //#include "DrawDebugHelpers.h"
+#include "DrawDebugHelpers.h"
 #include "TankPawn.h"
 
 void ATankPlayerController::BeginPlay()
@@ -23,6 +24,7 @@ void ATankPlayerController::SetupInputComponent()
     InputComponent->BindAction("Fire", IE_Pressed, this, &ATankPlayerController::Fire);
     InputComponent->BindAction("FireSpecial", IE_Pressed, this, &ATankPlayerController::FireSpecial);
     InputComponent->BindAction("WeaponSwap", IE_Pressed, this, &ATankPlayerController::SwapCannons);
+    InputComponent->BindAxis("RotateTurretRight");
 }
 
 void ATankPlayerController::Tick(const float DeltaTime)
@@ -32,14 +34,33 @@ void ATankPlayerController::Tick(const float DeltaTime)
     if (!TankPawn)
         return;
     
-    FVector MousePosition, MouseDirection;
-    DeprojectMousePositionToWorld(MousePosition, MouseDirection);
-    MousePosition.Z = TankPawn->GetActorLocation().Z;
-    FVector TurretTargetDirection = MousePosition - TankPawn->GetActorLocation();
-    TurretTargetDirection.Normalize();
-    const FVector TurretTargetPosition = TankPawn->GetActorLocation() + TurretTargetDirection * 1000.f;
-    TankPawn->SetTurretTargetPosition(TurretTargetPosition);
-    //DrawDebugLine(GetWorld(), TankPawn->GetActorLocation(), TurretTargetPosition, FColor::Green, false, 0.1f,0, 5.f);
+    FVector2D MouseScreenPosition;
+    GetMousePosition(MouseScreenPosition.X, MouseScreenPosition.Y);
+    bool bWasMouseMoved = !LastFrameMousePosition.Equals(MouseScreenPosition);
+    LastFrameMousePosition = MouseScreenPosition;
+
+    float TurretRotationAxis = GetInputAxisValue("RotateTurretRight");
+    if (FMath::IsNearlyZero(TurretRotationAxis) && (bWasMouseMoved || bIsControllingFromMouse))
+    {
+        bIsControllingFromMouse = true;
+        FVector WorldMousePosition, MouseDirection;
+        DeprojectMousePositionToWorld(WorldMousePosition, MouseDirection);
+
+        FVector PawnPos = TankPawn->GetActorLocation();
+        WorldMousePosition.Z = PawnPos.Z;
+        FVector NewTurretDirection = WorldMousePosition - PawnPos;
+        NewTurretDirection.Normalize();
+
+        FVector TurretTarget = PawnPos + NewTurretDirection * 1000.f;
+        TankPawn->SetTurretTargetPosition(TurretTarget);
+    }
+    else
+    {
+        bIsControllingFromMouse = false;
+        TankPawn->SetTurretRotationAxis(TurretRotationAxis);
+    }
+
+    DrawDebugLine(GetWorld(), TankPawn->GetActorLocation(), TankPawn->GetActorLocation() + TankPawn->GetTurretForwardVector() * 1000.f, FColor::Green, false, 0.1f, 0.f, 5.f);
 }
 
 void ATankPlayerController::Fire()

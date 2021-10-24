@@ -158,6 +158,13 @@ void ATankPawn::RotateRight(const float InAxisValue)
 void ATankPawn::SetTurretTargetPosition(const FVector& TargetPosition)
 {
 	TurretTargetPosition = TargetPosition;
+	bIsTurretTargetSet = true;
+}
+
+void ATankPawn::SetTurretRotationAxis(float AxisValue)
+{
+	TurretRotationAxis = AxisValue;
+	TurretTargetDirection = TurretTargetPosition - GetActorLocation();
 }
 
 void ATankPawn::OnDie_Implementation()
@@ -181,6 +188,13 @@ void ATankPawn::Tick(const float DeltaTime)
 	const float Rotation = GetActorRotation().Yaw + CurrentRotateRightAxis * RotationSpeed * DeltaTime;
 	SetActorRotation(FRotator(0.f, Rotation, 0.f));
 
+
+	if (!bIsTurretTargetSet)
+	{
+		TurretTargetDirection = TurretTargetDirection.RotateAngleAxis(TurretRotationSmoothness * DeltaTime * TurretRotationAxis, FVector::UpVector);
+		TurretTargetPosition = GetActorLocation() + TurretTargetDirection;
+	}
+	
 	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(TurretMesh->GetComponentLocation(), TurretTargetPosition);
 	FRotator CurrentRotation = TurretMesh->GetComponentRotation();
 	TargetRotation.Roll = CurrentRotation.Roll;

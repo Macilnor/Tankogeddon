@@ -35,5 +35,8 @@ private:
 
 	UPROPERTY()
 	class ATankPawn* TankPawn;
+
+	FVector2D LastFrameMousePosition;
+	bool bIsControllingFromMouse = false;
 	
 };

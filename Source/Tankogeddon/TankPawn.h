@@ -96,6 +96,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void SetTurretTargetPosition(const FVector& TargetPosition);
 
+	UFUNCTION(BlueprintCallable, Category = "Turret")
+	void SetTurretRotationAxis(float AxisValue);
+
 	UFUNCTION(BlueprintCallable, Category = "Turret")	
 	void SetupCannon(TSubclassOf<class ACannon> InCannonClass);
 	
@@ -113,9 +116,6 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Turret")
 	FVector GetTurretForwardVector();
-
-	UFUNCTION(BlueprintCallable, Category = "Death")
-	void Die();
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -148,5 +148,8 @@ private:
 	float TargetRotateRightAxis = 0.f;
 
 	FVector TurretTargetPosition;
+	FVector TurretTargetDirection;
+	bool bIsTurretTargetSet = false;
+	float TurretRotationAxis = 0.f;
 
 };
