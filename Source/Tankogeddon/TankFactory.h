@@ -39,8 +39,20 @@ class TANKOGEDDON_API ATankFactory : public AActor, public IDamageable
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn tanks params")
 	TArray<class ATargetPoint*> TankWayPoints;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn tanks params")
+	class UParticleSystemComponent* SpawnEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn tanks params")
+	class UAudioComponent* SpawnAudioEffect;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal Params")
 	class AMapLoader* MapLoader;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Death")
+	class UParticleSystem* DeathEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Death")
+	class USoundBase* DeathAudioEffect;
 
 	public:
 

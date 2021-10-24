@@ -10,6 +10,8 @@
 #include "TankPawn.h"
 #include "Kismet/GameplayStatics.h"
 #include "MapLoader.h"
+#include "Components/AudioComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Serialization/Archive.h"
 
 // Sets default values
@@ -24,7 +26,7 @@ ATankFactory::ATankFactory()
     BuildingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Building Mesh"));
     BuildingMesh->SetupAttachment(SceneComp);
 
-    TankSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Cannon setup point"));
+    TankSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Tank spawn point"));
     TankSpawnPoint->SetupAttachment(SceneComp);
 
     HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
@@ -33,6 +35,12 @@ ATankFactory::ATankFactory()
     HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
     HealthComponent->OnDie.AddDynamic(this, &ATankFactory::Die);
     HealthComponent->OnHealthChanged.AddDynamic(this, &ATankFactory::DamageTaked);
+
+    SpawnEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Spawn Effect"));
+    SpawnEffect->SetupAttachment(SceneComp);
+
+    SpawnAudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("Spawn Audio Effect"));
+    SpawnAudioEffect->SetupAttachment(SceneComp);
 
 }
 
@@ -59,6 +67,8 @@ void ATankFactory::EndPlay(EEndPlayReason::Type EndPlayReason)
 
 void ATankFactory::SpawnNewTank()
 {
+    SpawnEffect->ActivateSystem();
+    SpawnAudioEffect->Play();
     FTransform SpawnTransform(TankSpawnPoint->GetComponentRotation(), TankSpawnPoint->GetComponentLocation(), FVector(1.f));
     ATankPawn* NewTank = GetWorld()->SpawnActorDeferred<ATankPawn>(SpawnTankClass, SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     //
@@ -74,6 +84,9 @@ void ATankFactory::Die()
         MapLoader->SetIsActivated(true);
     }
 
+    UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeathEffect, GetActorTransform());
+    UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathAudioEffect, GetActorLocation());
+    
     Destroy();
 }
 
