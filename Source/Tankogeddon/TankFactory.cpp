@@ -42,6 +42,9 @@ ATankFactory::ATankFactory()
     SpawnAudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("Spawn Audio Effect"));
     SpawnAudioEffect->SetupAttachment(SceneComp);
 
+    DestroyedMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Destroyed Mesh"));
+    DestroyedMesh->SetupAttachment(SceneComp);
+
 }
 
 void ATankFactory::TakeDamage(const FDamageData& DamageData)
@@ -54,6 +57,9 @@ void ATankFactory::BeginPlay()
 {
 	Super::BeginPlay();
 
+    BuildingMesh->SetVisibility(true);
+    DestroyedMesh->SetVisibility(false);
+    
     GetWorld()->GetTimerManager().SetTimer(SpawnTankTimerHandle, this, &ATankFactory::SpawnNewTank, SpawnTankRate, true, SpawnTankRate);
 
 }
@@ -86,8 +92,9 @@ void ATankFactory::Die()
 
     UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeathEffect, GetActorTransform());
     UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathAudioEffect, GetActorLocation());
-    
-    Destroy();
+    GetWorld()->GetTimerManager().ClearTimer(SpawnTankTimerHandle); 
+    BuildingMesh->SetVisibility(false);
+    DestroyedMesh->SetVisibility(true);
 }
 
 void ATankFactory::DamageTaked(float DamageValue)
