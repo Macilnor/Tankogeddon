@@ -20,9 +20,6 @@ class TANKOGEDDON_API ATankAIController : public AAIController
 
 	int32 CurrentPatrolPointIndex = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params", Meta = (MakeEditWidget = true))
-	TArray<FVector> PatrollingPoints;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
 	float TargetingRange = 3000.f;
 
