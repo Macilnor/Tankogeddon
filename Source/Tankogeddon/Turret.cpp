@@ -31,19 +31,7 @@ ATurret::ATurret()
 
     HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
     HitCollider->SetupAttachment(BodyMesh);
-
-    UStaticMesh* TurretMeshTemp = LoadObject<UStaticMesh>(this, *TurretMeshPath);
-    if (TurretMeshTemp)
-    {
-        TurretMesh->SetStaticMesh(TurretMeshTemp);
-    }
-
-    UStaticMesh* BodyMeshTemp = LoadObject<UStaticMesh>(this, *BodyMeshPath);
-    if (BodyMeshTemp)
-    {
-        BodyMesh->SetStaticMesh(BodyMeshTemp);
-    }
-
+    
     HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
     HealthComponent->OnHealthChanged.AddDynamic(this, &ATurret::OnHealthChanged);
     HealthComponent->OnDie.AddDynamic(this, &ATurret::OnDie);
@@ -61,6 +49,23 @@ void ATurret::BeginPlay()
 
     PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
 
+}
+
+void ATurret::PostInitializeComponents()
+{
+    Super::PostInitializeComponents();
+    
+    UStaticMesh* TurretMeshTemp = LoadObject<UStaticMesh>(this, *TurretMeshPath);
+    if (TurretMeshTemp)
+    {
+        TurretMesh->SetStaticMesh(TurretMeshTemp);
+    }
+
+    UStaticMesh* BodyMeshTemp = LoadObject<UStaticMesh>(this, *BodyMeshPath);
+    if (BodyMeshTemp)
+    {
+        BodyMesh->SetStaticMesh(BodyMeshTemp);
+    }
 }
 
 void ATurret::Destroyed()
