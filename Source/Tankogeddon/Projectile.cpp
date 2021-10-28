@@ -63,7 +63,7 @@ void AProjectile::Tick(float DeltaTime)
 	}
 }
 
-void AProjectile::OnMeshHit(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& HitResult)
+void AProjectile::OnMeshHit(class UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& HitResult)
 {
 	UE_LOG(LogTankogeddon, Warning, TEXT("Projectile %s collided with %s. "), *GetName(), *OtherActor->GetName());
 
@@ -72,7 +72,58 @@ void AProjectile::OnMeshHit(class UPrimitiveComponent* OverlappedComp, class AAc
 		Stop();
 		return;
 	}
+
+	if (bExplosive)
+	{
+		FVector StartPos = GetActorLocation();
+		FVector EndPos = StartPos + FVector(0.1f);
+
+		FCollisionShape Shape = FCollisionShape::MakeSphere(ExplosionRange);
+		FCollisionQueryParams Params = FCollisionQueryParams::DefaultQueryParam;
+		Params.AddIgnoredActor(this);
+		Params.bTraceComplex = true;
+		Params.TraceTag = "Explode Trace";
+		TArray<FHitResult> AttackHit;
+
+		FQuat Rotation = FQuat::Identity;
+
+		GetWorld()->DebugDrawTraceTag = "Explode Trace";
+
+		bool bSweepResult = GetWorld()->SweepMultiByChannel
+		(
+			AttackHit,
+			StartPos,
+			EndPos,
+			Rotation,
+			ECollisionChannel::ECC_Visibility,
+			Shape,
+			Params
+		);
+
+		if (bSweepResult)
+		{
+			for (FHitResult ExplosionHitResult : AttackHit)
+			{
+				AActor* HitActor = ExplosionHitResult.GetActor();
+				if (!HitActor)
+					continue;
+
+				DoDamage(ExplosionHitResult);
+			}
+		}
+	}
+	else
+	{
+		DoDamage(HitResult);
+	}
 	
+	Stop();
+}
+
+void AProjectile::DoDamage(const FHitResult& HitResult)
+{
+	AActor* OtherActor = HitResult.GetActor();
+	UPrimitiveComponent* OtherComp = Cast<UPrimitiveComponent>(OtherActor->GetRootComponent());
 	if (OtherActor && OtherComp && OtherComp->GetCollisionObjectType() == ECC_Destructible)
 	{
 		OtherActor->Destroy();
@@ -88,10 +139,17 @@ void AProjectile::OnMeshHit(class UPrimitiveComponent* OverlappedComp, class AAc
 	
 	if (OtherComp->IsSimulatingPhysics())
 	{
-		FVector Impulse = Mass * MoveSpeed * GetActorForwardVector();
-		OtherComp->AddImpulseAtLocation(Impulse, HitResult.ImpactPoint);
+		if (bExplosive)
+		{
+			FVector ForceVector = OtherActor->GetActorLocation() - GetActorLocation();
+			ForceVector.Normalize();
+			OtherComp->AddImpulse(ForceVector * ExplosionImpulse, NAME_None, true);
+		}
+		else
+		{
+			FVector Impulse = Mass * MoveSpeed * GetActorForwardVector();
+			OtherComp->AddImpulseAtLocation(Impulse, HitResult.ImpactPoint);
+		}
 	}
-	
-	Stop();
 }
 

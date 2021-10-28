@@ -34,7 +34,7 @@ void APhysicsProjectile::Tick(float DeltaSeconds)
     }
 }
 
-void APhysicsProjectile::OnMeshHit(class UPrimitiveComponent* HittedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& SweepResult)
+/*void APhysicsProjectile::OnMeshHit(class UPrimitiveComponent* HittedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& SweepResult)
 {
     FVector StartPos = GetActorLocation();
     FVector EndPos = StartPos + FVector(0.1f);
@@ -94,4 +94,4 @@ void APhysicsProjectile::OnMeshHit(class UPrimitiveComponent* HittedComp, class 
     }
 
     Stop();
-}
+}*/
