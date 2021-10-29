@@ -3,7 +3,7 @@
 
 #include "PhysicsProjectile.h"
 #include "PhysicsMovementComponent.h"
-#include "Damageable.h"
+//#include "Damageable.h"
 
 APhysicsProjectile::APhysicsProjectile()
 {

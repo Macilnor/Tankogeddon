@@ -123,7 +123,8 @@ void AProjectile::OnMeshHit(class UPrimitiveComponent* OverlappedComp, AActor* O
 void AProjectile::DoDamage(const FHitResult& HitResult)
 {
 	AActor* OtherActor = HitResult.GetActor();
-	UPrimitiveComponent* OtherComp = Cast<UPrimitiveComponent>(OtherActor->GetRootComponent());
+	UPrimitiveComponent* OtherComp = Cast<UPrimitiveComponent>(HitResult.GetComponent());
+	
 	if (OtherActor && OtherComp && OtherComp->GetCollisionObjectType() == ECC_Destructible)
 	{
 		OtherActor->Destroy();
@@ -136,7 +137,6 @@ void AProjectile::DoDamage(const FHitResult& HitResult)
 		DamageData.DamageMaker = this;
 		Damageable->TakeDamage(DamageData);
 	}
-	
 	if (OtherComp->IsSimulatingPhysics())
 	{
 		if (bExplosive)
