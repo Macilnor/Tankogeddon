@@ -27,7 +27,15 @@ class TANKOGEDDON_API AProjectile : public AActor
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Physics")
 	float Mass = 1.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Physics")
+	bool bExplosive = false;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (EditCondition = "bExplosive == true", EditConditionHides), Category = "Physics")
+	float ExplosionRange = 1000.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (EditCondition = "bExplosive == true", EditConditionHides), Category = "Physics")
+	float ExplosionImpulse = 100.f;
+	
 	public:
 	AProjectile();
 
@@ -38,6 +46,7 @@ class TANKOGEDDON_API AProjectile : public AActor
 	protected:
 	UFUNCTION()
 	virtual void OnMeshHit(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& HitResult);
+	void DoDamage(const FHitResult& HitResult);
 
 	private:
 	FVector StartPosition;
