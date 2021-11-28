@@ -32,6 +32,9 @@ class TANKOGEDDON_API ATankFactory : public AActor, public IDamageable
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	class UHealthComponent* HealthComponent;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	class UWidgetComponent* HPBar;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn tanks params")
 	TSubclassOf<class ATankPawn> SpawnTankClass;

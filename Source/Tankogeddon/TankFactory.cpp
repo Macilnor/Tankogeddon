@@ -6,11 +6,13 @@
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "HealthComponent.h"
+#include "HPBarWidget.h"
 #include "Tankogeddon.h"
 #include "TankPawn.h"
 #include "Kismet/GameplayStatics.h"
 #include "MapLoader.h"
 #include "Components/AudioComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Serialization/Archive.h"
 
@@ -44,6 +46,9 @@ ATankFactory::ATankFactory()
 
     DestroyedMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Destroyed Mesh"));
     DestroyedMesh->SetupAttachment(SceneComp);
+
+    HPBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HP Bar"));
+    HPBar->SetupAttachment(BuildingMesh);
 
 }
 
@@ -100,5 +105,10 @@ void ATankFactory::Die()
 void ATankFactory::DamageTaked(float DamageValue)
 {
     UE_LOG(LogTankogeddon, Log, TEXT("Factory %s taked damage:%f "), *GetName(), DamageValue);
+    if (Cast<UHPBarWidget>(HPBar->GetUserWidgetObject()))
+    {
+        UHPBarWidget* HP = Cast<UHPBarWidget>(HPBar->GetUserWidgetObject());
+        HP->SetHPValue(HealthComponent->GetHealthState());
+    }
 }
 

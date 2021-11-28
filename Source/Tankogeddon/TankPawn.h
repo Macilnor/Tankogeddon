@@ -50,12 +50,14 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 		class UAudioComponent* HitAudioEffect;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		class UWidgetComponent* HPBar;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Death")
+		class UParticleSystem* DeathEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Death")
-	class UParticleSystem* DeathEffect;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Death")
-	class USoundBase* DeathAudioEffect;
+		class USoundBase* DeathAudioEffect;
 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
@@ -116,6 +118,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Turret")
 	FVector GetTurretForwardVector();
+	
+	UFUNCTION(BlueprintPure, Category = "Health")
+	UHealthComponent* GetHealthComponent();
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

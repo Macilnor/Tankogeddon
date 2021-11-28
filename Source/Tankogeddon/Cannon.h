@@ -62,6 +62,10 @@ class TANKOGEDDON_API ACannon : public AActor
 		void Restock(int32 InAmmo);
 	
 		bool IsReadyToFire() const;
+		UFUNCTION(BlueprintPure, Category = "Ammo")
+		float GetAmmoState();
+		UFUNCTION(BlueprintPure, Category = "Ammo")
+		float GetAmmo();
 	protected:
 		virtual void BeginPlay() override;
 		virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
