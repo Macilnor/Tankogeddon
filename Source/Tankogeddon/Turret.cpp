@@ -12,6 +12,8 @@
 #include "UObject/NoExportTypes.h"
 #include "Tankogeddon.h"
 #include "HealthComponent.h"
+#include "HPBarWidget.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 ATurret::ATurret()
@@ -35,6 +37,9 @@ ATurret::ATurret()
     HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
     HealthComponent->OnHealthChanged.AddDynamic(this, &ATurret::OnHealthChanged);
     HealthComponent->OnDie.AddDynamic(this, &ATurret::OnDie);
+
+    HPBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HP Bar"));
+    HPBar->SetupAttachment(BodyMesh);
 }
 
 // Called when the game starts or when spawned
@@ -145,6 +150,11 @@ void ATurret::Fire()
 void ATurret::OnHealthChanged_Implementation(float Damage)
 {
     UE_LOG(LogTankogeddon, Log, TEXT("Turret %s taked damage:%f "), *GetName(), Damage);
+    if (Cast<UHPBarWidget>(HPBar->GetUserWidgetObject()))
+    {
+        UHPBarWidget* HP = Cast<UHPBarWidget>(HPBar->GetUserWidgetObject());
+        HP->SetHPValue(HealthComponent->GetHealthState());
+    }
 }
 
 void ATurret::OnDie_Implementation()

@@ -176,6 +176,16 @@ bool ACannon::IsReadyToFire() const
 	return ReadyToFire;
 }
 
+float ACannon::GetAmmoState()
+{
+	return Ammo / static_cast<float>(AmmoCapacity);
+}
+
+float ACannon::GetAmmo()
+{
+	return Ammo;
+}
+
 void ACannon::Reload()
 {
 	ReadyToFire = true;

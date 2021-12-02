@@ -33,6 +33,9 @@ protected:
     UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
     class UHealthComponent* HealthComponent;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	class UWidgetComponent* HPBar;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
     TSubclassOf<class ACannon> CannonClass;
 

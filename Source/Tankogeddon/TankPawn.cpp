@@ -5,15 +5,18 @@
 
 #include "Cannon.h"
 #include "HealthComponent.h"
+#include "HPBarWidget.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Tankogeddon.h"
+#include "TankogeddonHUD.h"
 #include "Chaos/ChaosPerfTest.h"
 #include "Components/AudioComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 
@@ -54,7 +57,9 @@ ATankPawn::ATankPawn()
 
 	HitAudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("Hit Audio Effect"));
 	HitAudioEffect->SetupAttachment(BodyMesh);
-	
+
+	HPBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HP Bar"));
+	HPBar->SetupAttachment(BodyMesh);
 }
 
 int32 ATankPawn::GetScores() const
@@ -143,6 +148,12 @@ void ATankPawn::OnHealthChanged_Implementation(float Damage)
 	UE_LOG(LogTankogeddon, Log, TEXT("Turret %s taked damage:%f "), *GetName(), Damage);
 	HitEffect->ActivateSystem();
 	HitAudioEffect->Play();
+
+	if (Cast<UHPBarWidget>(HPBar->GetUserWidgetObject()))
+	{
+		UHPBarWidget* HP = Cast<UHPBarWidget>(HPBar->GetUserWidgetObject());
+		HP->SetHPValue(HealthComponent->GetHealthState());
+	}
 }
 
 void ATankPawn::MoveForward(const float InAxisValue)
@@ -171,6 +182,12 @@ void ATankPawn::OnDie_Implementation()
 {
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeathEffect, GetActorTransform());
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathAudioEffect, GetActorLocation());
+	if (IsPlayerControlled())
+	{
+		ATankogeddonHUD* HUD = Cast<ATankogeddonHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+		HUD->UseWidget(EWidgetID::Wid_GameOver);
+	}
+
 	Destroy();
 }
 
@@ -205,6 +222,11 @@ void ATankPawn::Tick(const float DeltaTime)
 FVector ATankPawn::GetTurretForwardVector()
 {
 	return TurretMesh->GetForwardVector();
+}
+
+UHealthComponent* ATankPawn::GetHealthComponent()
+{
+	return HealthComponent;
 }
 
 void ATankPawn::TakeDamage(const FDamageData& DamageData)
