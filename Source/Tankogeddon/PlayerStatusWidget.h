@@ -28,4 +28,8 @@ protected:
 	class UTextBlock * AmmoCount;
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UTextBlock * PlayerScore;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UMiniMap* PlayerMiniMap;
+
+
 };

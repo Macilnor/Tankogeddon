@@ -7,6 +7,7 @@
 
 #include "Cannon.h"
 #include "HealthComponent.h"
+#include "MiniMap.h"
 #include "TankPawn.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
@@ -37,5 +38,6 @@ void UPlayerStatusWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaT
         HPBar->SetPercent(HPState);
         HPCount->SetText(UKismetTextLibrary::Conv_FloatToText(HP,ERoundingMode::HalfFromZero));
         PlayerScore->SetText(UKismetTextLibrary::Conv_FloatToText(Score,ERoundingMode::HalfFromZero));
+        PlayerMiniMap->SetPlayerPercentPos(Cast<ATankPawn>(GetOwningPlayerPawn())->GetActorLocation(), FVector2D{10000.f, 10000.f});
     }
 }
